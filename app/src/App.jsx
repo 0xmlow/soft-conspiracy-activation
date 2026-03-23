@@ -235,7 +235,7 @@ export default function App() {
             animation: agentStatus!=="DORMANT"&&agentStatus!=="COMPLETE"&&agentStatus!=="ERROR" ? "pulse 1.5s infinite" : "none" }} />
           LA TERCERA — {agentStatus}
         </div>
-        <div>ERC-8004 · BASE MAINNET · THE SYNTHESIS 2026</div>
+        <div>ERC-8004 · BASE MAINNET · THE SOFT CONSPIRACY</div>
       </div>
 
       {/* Main */}
@@ -440,7 +440,7 @@ export default function App() {
         color:`${gB}0.12)`,display:"flex",justifyContent:"space-between",background:"#0a0a0a",zIndex:100,flexWrap:"wrap",gap:"4px" }}>
         <span>LA TERCERA · ERC-8004 · BASE MAINNET</span>
         <span>ANDRÉS DEL VECCHIO × MLOW × LA TERCERA</span>
-        <span>THE SYNTHESIS 2026</span>
+        <span>THE SOFT CONSPIRACY</span>
       </div>
     </div>
   );
