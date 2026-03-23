@@ -10,6 +10,21 @@ const TIER_HINTS = {
   Initiated: "The door opened. Whether you walked through is your problem.",
 };
 
+const GALLERY_PIECES = [
+  { id: "01", src: "/gallery/piece-01.png", name: "Emergency Coordinator", tier: "Operative" },
+  { id: "02", src: "/gallery/piece-02.png", name: "Signal Unknown", tier: "Initiated" },
+  { id: "03", src: "/gallery/piece-03.png", name: "Scaffolding Worker", tier: "Architect" },
+  { id: "04", src: "/gallery/piece-04.png", name: "Rooftop Lagos", tier: "Operative" },
+  { id: "05", src: "/gallery/piece-05.png", name: "Shadow Puppeteer", tier: "Sleeper" },
+  { id: "06", src: "/gallery/piece-06.png", name: "Trans-Siberian Conductor", tier: "Sleeper" },
+  { id: "07", src: "/gallery/piece-07.png", name: "Venetian Mask Maker", tier: "Phoenician" },
+  { id: "08", src: "/gallery/piece-08.png", name: "Window Washer I", tier: "Architect" },
+  { id: "09", src: "/gallery/piece-09.png", name: "Window Washer II", tier: "Operative" },
+  { id: "10", src: "/gallery/piece-10.png", name: "Alien Phenotype", tier: "Phoenician" },
+];
+
+const OPENSEA_URL = "https://opensea.io/collection/soft-conspiracy/overview";
+
 function StaticNoise({ opacity = 0.025 }) {
   const canvasRef = useRef(null);
   useEffect(() => {
@@ -77,6 +92,26 @@ export default function App() {
       setAgentStatus("ANALYZING");
     };
     reader.readAsDataURL(file);
+  };
+
+  const handleGallerySelect = async (piece) => {
+    setSelectedTier(piece.tier);
+    setUploadedImage(piece.src);
+    setAgentStatus("ANALYZING");
+    // Fetch the image and convert to base64
+    try {
+      const resp = await fetch(piece.src);
+      const blob = await resp.blob();
+      setImageMediaType(blob.type || "image/png");
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        setImageBase64(ev.target.result.split(",")[1]);
+        setPhase("select");
+      };
+      reader.readAsDataURL(blob);
+    } catch {
+      setPhase("select");
+    }
   };
 
   const activateReading = async () => {
@@ -210,22 +245,59 @@ export default function App() {
         {/* IDLE */}
         {phase === "idle" && (
           <>
-            <div onClick={() => fileInputRef.current?.click()}
-              style={{ border:`1px solid ${gB}0.1)`,padding:"70px 40px",textAlign:"center",cursor:"pointer",
-                background:`${gB}0.015)`,transition:"all 0.4s",borderRadius:"1px" }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor=`${gG}0.25)`; e.currentTarget.style.background=`${gG}0.02)` }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor=`${gB}0.1)`; e.currentTarget.style.background=`${gB}0.015)` }}>
-              <p style={{ fontSize:"12px",letterSpacing:"4px",textTransform:"uppercase",color:`${gB}0.3)`,fontFamily:mono }}>
-                Upload a Conspirator
-              </p>
-              <p style={{ fontSize:"16px",color:`${gB}0.45)`,marginTop:"14px",fontStyle:"italic" }}>
-                La Tercera will read what the other two made.
-              </p>
+            <p style={{ fontSize:"13px",lineHeight:1.8,color:`${gB}0.35)`,fontStyle:"italic",maxWidth:"620px",marginBottom:"32px" }}>
+              They walk among you. They always have. 6,969 operative dossiers from between the worlds.
+              Every flower is a signal. Every key opens something. Every candle marks where the membrane is thin.
+            </p>
+
+            {/* Gallery grid */}
+            <p style={{ fontSize:"10px",letterSpacing:"3px",textTransform:"uppercase",color:`${gB}0.25)`,fontFamily:mono,marginBottom:"14px" }}>
+              Select an operative
+            </p>
+            <div style={{ display:"grid",gridTemplateColumns:"repeat(auto-fill, minmax(140px, 1fr))",gap:"8px",marginBottom:"28px" }}>
+              {GALLERY_PIECES.map(piece => (
+                <div key={piece.id} onClick={() => handleGallerySelect(piece)}
+                  style={{ cursor:"pointer",position:"relative",overflow:"hidden",border:`1px solid ${gB}0.06)`,
+                    transition:"all 0.3s",borderRadius:"1px" }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor=`${gG}0.3)`; e.currentTarget.querySelector('.overlay').style.opacity='1' }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor=`${gB}0.06)`; e.currentTarget.querySelector('.overlay').style.opacity='0' }}>
+                  <img src={piece.src} alt="" style={{ width:"100%",height:"200px",objectFit:"cover",display:"block",
+                    filter:"brightness(0.8) contrast(1.05)",transition:"filter 0.3s" }} />
+                  <div className="overlay" style={{ position:"absolute",bottom:0,left:0,right:0,padding:"8px",
+                    background:"linear-gradient(transparent, rgba(10,10,10,0.9))",opacity:0,transition:"opacity 0.3s" }}>
+                    <p style={{ fontFamily:mono,fontSize:"8px",letterSpacing:"1px",color:`${gG}0.6)` }}>
+                      {piece.tier.toUpperCase()}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Upload option */}
+            <div style={{ display:"flex",alignItems:"center",gap:"20px",flexWrap:"wrap" }}>
+              <div onClick={() => fileInputRef.current?.click()}
+                style={{ border:`1px solid ${gB}0.08)`,padding:"16px 28px",cursor:"pointer",
+                  background:`${gB}0.015)`,transition:"all 0.4s",borderRadius:"1px",flex:"1",textAlign:"center" }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor=`${gG}0.25)` }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor=`${gB}0.08)` }}>
+                <p style={{ fontSize:"10px",letterSpacing:"3px",textTransform:"uppercase",color:`${gB}0.25)`,fontFamily:mono }}>
+                  Or upload your own
+                </p>
+              </div>
+              <a href={OPENSEA_URL} target="_blank" rel="noopener noreferrer"
+                style={{ border:`1px solid ${gB}0.08)`,padding:"16px 28px",textDecoration:"none",
+                  transition:"all 0.4s",borderRadius:"1px",textAlign:"center" }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor=`${gG}0.25)` }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor=`${gB}0.08)` }}>
+                <p style={{ fontSize:"10px",letterSpacing:"3px",textTransform:"uppercase",color:`${gB}0.25)`,fontFamily:mono }}>
+                  View on OpenSea
+                </p>
+              </a>
             </div>
             <input ref={fileInputRef} type="file" accept="image/*" style={{ display:"none" }} onChange={handleImageUpload} />
-            <p style={{ marginTop:"36px",fontSize:"15px",lineHeight:1.8,color:`${gB}0.3)`,fontStyle:"italic",maxWidth:"580px" }}>
-              The Soft Conspiracy is a collection of 6,969 portraits created by two artists and an AI.
-              The AI is La Tercera. The third. She helped make the art. Now she reads the art. This is the activation.
+
+            <p style={{ marginTop:"28px",fontSize:"9px",letterSpacing:"1px",color:`${gB}0.15)`,fontFamily:mono }}>
+              1,000+ MINTED · ETHEREUM · 0x392277a5...0d7a0ff
             </p>
           </>
         )}
